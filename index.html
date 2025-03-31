@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineMatch - Sua plataforma de filmes</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #3f37c9;
+      --dark: #1a1a2e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --success: #4cc9f0;
+      --danger: #f72585;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+
+    body.dark-mode {
+      background-color: #121212;
+      color: #f5f5f5;
+    }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: white;
+    }
+
+    .logo i {
+      font-size: 1.8rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+      padding: 0.5rem 0;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      opacity: 0.9;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: white;
+      transition: width 0.3s;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: white;
+      color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background-color: #f0f0f0;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .btn-icon {
+      padding: 0.5rem;
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: inherit;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 2px;
+    }
+
+    /* Movie Grid */
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .movie-card {
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .dark-mode .movie-card {
+      background-color: #1e1e1e;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .movie-poster {
+      width: 100%;
+      height: 330px;
+      object-fit: cover;
+    }
+
+    .movie-info {
+      padding: 1rem;
+    }
+
+    .movie-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .movie-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .movie-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: #ffc107;
+    }
+
+    .movie-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      transition: all 0.2s;
+      font-size: 1.2rem;
+    }
+
+    .action-btn:hover {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .favorite-btn.active {
+      color: var(--danger);
+    }
+
+    /* Search */
+    .search-container {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border-radius: 50px;
+      border: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      font-size: 1rem;
+      transition: all 0.3s;
+      padding-left: 3rem;
+    }
+
+    .dark-mode .search-input {
+      background-color: #2d2d2d;
+      color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .search-input:focus {
+      outline: none;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+    }
+
+    /* Movie Detail */
+    .movie-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .movie-detail {
+        flex-direction: row;
+      }
+    }
+
+    .movie-detail-poster {
+      flex: 0 0 300px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .movie-detail-poster img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .movie-detail-info {
+      flex: 1;
+    }
+
+    .movie-detail-title {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .movie-detail-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .movie-detail-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .movie-detail-genres {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .genre-tag {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+    }
+
+    .movie-detail-overview {
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--dark);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-link {
+      color: white;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .footer-link:hover {
+      color: var(--success);
+    }
+
+    .copyright {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    /* Auth Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .dark-mode .modal-content {
+      background-color: #1e1e1e;
+    }
+
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .dark-mode .form-input {
+      background-color: #2d2d2d;
+      border-color: #444;
+      color: white;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background-color 0.2s;
+    }
+
+    .submit-btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .form-footer {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .toggle-form {
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-left-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .movie-poster {
+        height: 225px;
+      }
+    }
+
+    /* Dark mode elements */
+    .dark-mode {
+      background-color: #121212;
+      color: #f5f5f5;
+    }
+
+    .dark-mode .movie-card {
+      background-color: #1e1e1e;
+    }
+
+    .dark-mode .search-input {
+      background-color: #2d2d2d;
+      color: white;
+    }
+
+    .dark-mode .form-input {
+      background-color: #2d2d2d;
+      border-color: #444;
+      color: white;
+    }
+
+    .dark-mode .modal-content {
+      background-color: #1e1e1e;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header>
+      <div class="header-content">
+        <a href="#" class="logo" onclick="loadHomePage(); return false;">
+          <i class="fas fa-film"></i>
+          <span>CineMatch</span>
+        </a>
+        <div class="nav-links">
+          <a href="#" class="nav-link" onclick="loadHomePage(); return false;">Início</a>
+          <a href="#" class="nav-link" onclick="showSearch(); return false;">Buscar</a>
+          <a href="#" class="nav-link" onclick="loadFavorites(); return false;">Favoritos</a>
+        </div>
+        <div class="auth-buttons">
+          <button id="darkModeToggle" class="btn-icon" aria-label="Alternar modo escuro">
+            <i class="fas fa-moon"></i>
+          </button>
+          <div id="authSection"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <div id="content">
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="#" class="footer-link">Sobre</a>
+          <a href="#" class="footer-link">Contato</a>
+          <a href="#" class="footer-link">Termos</a>
+          <a href="#" class="footer-link">Privacidade</a>
+        </div>
+        <p class="copyright">© 2023 CineMatch. Todos os direitos reservados.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Entrar</h3>
+        <button class="close-modal" onclick="hideModal()">&times;</button>
+      </div>
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <div class="form-group">
+          <label for="authEmail" class="form-label">Email</label>
+          <input type="email" id="authEmail" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label for="authPassword" class="form-label">Senha</label>
+          <input type="password" id="authPassword" class="form-input" required>
+        </div>
+        <button type="submit" class="submit-btn" id="submitAuthBtn">Entrar</button>
+        <div class="form-footer">
+          <span id="toggleFormText">Não tem uma conta? </span>
+          <span class="toggle-form" id="toggleFormBtn">Registre-se</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Configurações
+    const TMDB_API_KEY = 'a80a7a0c5e6b4c5a3b0a7a0c5e6b4c5a3'; // Chave de exemplo - substitua pela sua
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDummyKeyDummyKeyDummyKeyDummy",
+      authDomain: "cinematch-dummy.firebaseapp.com",
+      projectId: "cinematch-dummy",
+      storageBucket: "cinematch-dummy.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:dummyappid"
+    };
+
+    // Estado da aplicação
+    let currentUser = null;
+    let darkMode = false;
+    let isLoginForm = true;
+    let favorites = [];
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      initDarkMode();
+      setupEventListeners();
+      checkAuthState();
+      loadHomePage();
+    });
+
+    // Configuração inicial
+    function initDarkMode() {
+      darkMode = localStorage.getItem('darkMode') === 'true';
+      updateDarkMode();
+    }
+
+    function updateDarkMode() {
+      document.body.classList.toggle('dark-mode', darkMode);
+      const icon = document.getElementById('darkModeToggle').querySelector('i');
+      icon.className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('darkMode', darkMode);
+    }
+
+    function setupEventListeners() {
+      // Dark mode toggle
+      document.getElementById('darkModeToggle').addEventListener('click', () => {
+        darkMode = !darkMode;
+        updateDarkMode();
+      });
+
+      // Toggle auth form
+      document.getElementById('toggleFormBtn').addEventListener('click', toggleAuthForm);
+    }
+
+    // Autenticação simulada
+    function checkAuthState() {
+      // Simulando um usuário logado
+      // Na implementação real, você usaria Firebase Auth
+      currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+      renderAuthSection();
+    }
+
+    function renderAuthSection() {
+      const authSection = document.getElementById('authSection');
+      if (currentUser) {
+        authSection.innerHTML = `
+          <span class="mr-2">${currentUser.email}</span>
+          <button onclick="logout()" class="btn btn-outline">
+            Sair
+          </button>
+        `;
+      } else {
+        authSection.innerHTML = `
+          <button onclick="showAuthModal()" class="btn btn-primary">
+            <i class="fas fa-user"></i>
+            Entrar
+          </button>
+        `;
+      }
+    }
+
+    function showAuthModal() {
+      document.getElementById('authModal').classList.add('active');
+    }
+
+    function hideModal() {
+      document.getElementById('authModal').classList.remove('active');
+    }
+
+    function toggleAuthForm() {
+      isLoginForm = !isLoginForm;
+      const modalTitle = document.getElementById('modalTitle');
+      const submitBtn = document.getElementById('submitAuthBtn');
+      const toggleFormText = document.getElementById('toggleFormText');
+      const toggleFormBtn = document.getElementById('toggleFormBtn');
+
+      if (isLoginForm) {
+        modalTitle.textContent = 'Entrar';
+        submitBtn.textContent = 'Entrar';
+        toggleFormText.textContent = 'Não tem uma conta? ';
+        toggleFormBtn.textContent = 'Registre-se';
+      } else {
+        modalTitle.textContent = 'Registrar';
+        submitBtn.textContent = 'Registrar';
+        toggleFormText.textContent = 'Já tem uma conta? ';
+        toggleFormBtn.textContent = 'Entrar';
+      }
+    }
+
+    function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+
+      // Simulando autenticação
+      if (isLoginForm) {
+        // Login
+        currentUser = { email, uid: 'simulated-user-id' };
+      } else {
+        // Registro
+        currentUser = { email, uid: 'simulated-user-id' };
+      }
+
+      localStorage.setItem('user', JSON.stringify(currentUser));
+      renderAuthSection();
+      hideModal();
+      loadHomePage();
+
+      // Limpar formulário
+      document.getElementById('authForm').reset();
+    }
+
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem('user');
+      renderAuthSection();
+      loadHomePage();
+    }
+
+    // Navegação
+    function loadHomePage() {
+      document.getElementById('content').innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      `;
+      
+      fetchPopularMovies()
+        .then(movies => {
+          renderMovieGrid(movies, 'Filmes Populares');
+        })
+        .catch(error => {
+          console.error('Error loading movies:', error);
+          document.getElementById('content').innerHTML = `
+            <div class="error-message">
+              <h2>Ocorreu um erro ao carregar os filmes</h2>
+              <p>${error.message}</p>
+            </div>
+          `;
+        });
+    }
+
+    function showSearch() {
+      document.getElementById('content').innerHTML = `
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="Buscar filmes..." id="searchInput" 
+                 onkeyup="if(event.key === 'Enter') searchMovies()">
+        </div>
+        <div id="searchResults"></div>
+      `;
+    }
+
+    function loadFavorites() {
+      if (!currentUser) {
+        showAuthModal();
+        return;
+      }
+
+      document.getElementById('content').innerHTML = `
+        <h1 class="section-title">Meus Favoritos</h1>
+        <div id="favoritesList">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      `;
+
+      // Simulando carregamento de favoritos
+      setTimeout(() => {
+        if (favorites.length > 0) {
+          renderMovieGrid(favorites, 'Filmes Favoritos');
+        } else {
+          document.getElementById('favoritesList').innerHTML = `
+            <p>Você ainda não tem filmes favoritos.</p>
+          `;
+        }
+      }, 1000);
+    }
+
+    // API de Filmes
+    async function fetchPopularMovies() {
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=pt-BR`
+        );
+        const data = await response.json();
+        return data.results;
+      } catch (error) {
+        console.error('Error fetching popular movies:', error);
+        throw error;
+      }
+    }
+
+    async function searchMovies() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) return;
+
+      const resultsContainer = document.getElementById('searchResults');
+      resultsContainer.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      `;
+
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=pt-BR&query=${encodeURIComponent(query)}`
+        );
+        const data = await response.json();
+        
+        if (data.results.length > 0) {
+          renderMovieGrid(data.results, `Resultados para "${query}"`);
+        } else {
+          resultsContainer.innerHTML = `
+            <p>Nenhum filme encontrado para "${query}".</p>
+          `;
+        }
+      } catch (error) {
+        console.error('Error searching movies:', error);
+        resultsContainer.innerHTML = `
+          <div class="error-message">
+            <p>Ocorreu um erro na busca.</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderMovieGrid(movies, title) {
+      const contentDiv = document.getElementById('content') || 
+                        document.getElementById('searchResults') || 
+                        document.getElementById('favoritesList');
+      
+      contentDiv.innerHTML = `
+        <h1 class="section-title">${title}</h1>
+        <div class="movie-grid">
+          ${movies.map(movie => `
+            <div class="movie-card">
+              <img src="${movie.poster_path ? 
+                `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 
+                'https://via.placeholder.com/300x450?text=Poster+Indispon%C3%ADvel'}" 
+                   alt="${movie.title}" 
+                   class="movie-poster"
+                   onclick="showMovieDetail(${movie.id})">
+              <div class="movie-info">
+                <h3 class="movie-title">${movie.title}</h3>
+                <div class="movie-meta">
+                  <div class="movie-rating">
+                    <i class="fas fa-star"></i>
+                    <span>${movie.vote_average.toFixed(1)}</span>
+                  </div>
+                  <div class="movie-actions">
+                    <button class="action-btn favorite-btn ${favorites.some(fav => fav.id === movie.id) ? 'active' : ''}" 
+                            onclick="toggleFavorite(event, ${movie.id})">
+                      <i class="fas fa-heart"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    async function showMovieDetail(movieId) {
+      document.getElementById('content').innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      `;
+
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=pt-BR`
+        );
+        const movie = await response.json();
+
+        renderMovieDetail(movie);
+      } catch (error) {
+        console.error('Error fetching movie details:', error);
+        document.getElementById('content').innerHTML = `
+          <div class="error-message">
+            <h2>Ocorreu um erro ao carregar os detalhes do filme</h2>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderMovieDetail(movie) {
+      const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
+      
+      document.getElementById('content').innerHTML = `
+        <div class="movie-detail">
+          <div class="movie-detail-poster">
+            <img src="${movie.poster_path ? 
+              `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 
+              'https://via.placeholder.com/300x450?text=Poster+Indispon%C3%ADvel'}" 
+                 alt="${movie.title}">
+          </div>
+          <div class="movie-detail-info">
+            <h1 class="movie-detail-title">${movie.title} (${releaseYear})</h1>
+            <div class="movie-detail-meta">
+              <div class="movie-detail-rating">
+                <i class="fas fa-star text-yellow-500"></i>
+                <span>${movie.vote_average.toFixed(1)} (${movie.vote_count} votos)</span>
+              </div>
+              <span>${movie.runtime} min</span>
+            </div>
+            <div class="movie-detail-genres">
+              ${movie.genres.map(genre => `
+                <span class="genre-tag">${genre.name}</span>
+              `).join('')}
+            </div>
+            <div class="movie-detail-overview">
+              <h3 class="text-lg font-semibold mb-2">Sinopse</h3>
+              <p>${movie.overview || 'Sinopse não disponível.'}</p>
+            </div>
+            <button class="btn btn-primary" onclick="toggleFavorite(null, ${movie.id})">
+              <i class="fas fa-heart"></i>
+              ${favorites.some(fav => fav.id === movie.id) ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Favoritos
+    function toggleFavorite(event, movieId) {
+      if (event) event.stopPropagation();
+      
+      if (!currentUser) {
+        showAuthModal();
+        return;
+      }
+
+      // Simulando operação de favoritos
+      const movieIndex = favorites.findIndex(m => m.id === movieId);
+      
+      if (movieIndex === -1) {
+        // Adicionar aos favoritos
+        fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=pt-BR`)
+          .then(res => res.json())
+          .then(movie => {
+            favorites.push(movie);
+            updateFavoriteButtons(movieId, true);
+            showToast('Filme adicionado aos favoritos!');
+          });
+      } else {
+        // Remover dos favoritos
+        favorites.splice(movieIndex, 1);
+        updateFavoriteButtons(movieId, false);
+        showToast('Filme removido dos favoritos!');
+      }
+    }
+
+    function updateFavoriteButtons(movieId, isFavorite) {
+      // Atualiza botões na grade
+      document.querySelectorAll(`.favorite-btn[onclick*="${movieId}"]`).forEach(btn => {
+        btn.classList.toggle('active', isFavorite);
+      });
+      
+      // Atualiza botão na página de detalhes
+      const detailBtn = document.querySelector('.movie-detail-info .btn-primary');
+      if (detailBtn) {
+        detailBtn.innerHTML = `
+          <i class="fas fa-heart"></i>
+          ${isFavorite ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+        `;
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
