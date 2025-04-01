@@ -20,18 +20,30 @@ const elements = {
   toggleFormText: document.getElementById('toggleFormText'),
   toggleFormBtn: document.getElementById('toggleFormBtn'),
   homeLink: document.getElementById('homeLink'),
-  searchLink: document.getElementById('searchLink'),
-  favoritesLink: document.getElementById('favoritesLink')
+  favoritesLink: document.getElementById('favoritesLink'),
+  headerSearchInput: document.getElementById('headerSearchInput')
 };
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', init);
 
+// Atualizar a função init para incluir a paginação nas categorias desktop
 function init() {
   setupDarkMode();
   setupEventListeners();
+  setupMobileMenu();
   checkAuthState();
   loadHomePage();
+
+  // Event listeners para categorias desktop
+  document.querySelectorAll('.category-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const genreId = link.getAttribute('data-genre');
+      const genreName = link.textContent;
+      loadMoviesByGenre(genreId, genreName);
+    });
+  });
 }
 
 // Configuração inicial
@@ -64,13 +76,37 @@ function setupEventListeners() {
     e.preventDefault();
     loadHomePage();
   });
-  elements.searchLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    showSearch();
-  });
   elements.favoritesLink.addEventListener('click', (e) => {
     e.preventDefault();
     loadFavorites();
+  });
+
+  // Header search
+  const searchToggle = document.getElementById('searchToggle');
+  const searchContainer = document.querySelector('.search-container');
+  
+  searchToggle.addEventListener('click', () => {
+    searchContainer.classList.toggle('active');
+    if (searchContainer.classList.contains('active')) {
+      document.getElementById('headerSearchInput').focus();
+    }
+  });
+
+  elements.headerSearchInput.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') {
+      const query = elements.headerSearchInput.value.trim();
+      if (query) {
+        searchMovies(query);
+        searchContainer.classList.remove('active');
+      }
+    }
+  });
+
+  // Fechar a barra de pesquisa ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!searchContainer.contains(e.target)) {
+      searchContainer.classList.remove('active');
+    }
   });
 }
 
@@ -165,23 +201,6 @@ function loadHomePage() {
     });
 }
 
-function showSearch() {
-  elements.content.innerHTML = `
-    <div class="search-container">
-      <i class="fas fa-search search-icon"></i>
-      <input type="text" class="search-input" placeholder="Buscar filmes..." id="searchInput">
-    </div>
-    <div id="searchResults"></div>
-  `;
-
-  const searchInput = document.getElementById('searchInput');
-  searchInput.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') {
-      searchMovies();
-    }
-  });
-}
-
 function loadFavorites() {
   if (!currentUser) {
     showAuthModal();
@@ -214,12 +233,10 @@ async function fetchPopularMovies() {
   }
 }
 
-async function searchMovies() {
-  const query = document.getElementById('searchInput').value.trim();
+async function searchMovies(query) {
   if (!query) return;
 
-  const resultsContainer = document.getElementById('searchResults');
-  resultsContainer.innerHTML = `
+  elements.content.innerHTML = `
     <div class="loading">
       <div class="spinner"></div>
     </div>
@@ -232,9 +249,9 @@ async function searchMovies() {
     const data = await response.json();
     
     if (data.results.length > 0) {
-      renderMovieGrid(data.results, `Resultados para "${query}"`, 'searchResults');
+      renderMovieGrid(data.results, `Resultados para "${query}"`);
     } else {
-      resultsContainer.innerHTML = `
+      elements.content.innerHTML = `
         <p>Nenhum filme encontrado para "${query}".</p>
       `;
     }
@@ -387,6 +404,95 @@ function updateFavoriteButtons(movieId, isFavorite) {
   }
 }
 
+// Atualizar a função setupMobileMenu para incluir a paginação
+function setupMobileMenu() {
+  const hamburgerMenu = document.querySelector('.hamburger-menu');
+  const mobileMenu = document.createElement('div');
+  mobileMenu.className = 'mobile-menu';
+  mobileMenu.innerHTML = `
+    <div class="mobile-menu-header">
+      <h3>Menu</h3>
+      <button class="close-mobile-menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="#" class="mobile-nav-link" id="mobileHomeLink">Início</a>
+      <a href="#" class="mobile-nav-link" id="mobileFavoritesLink">Favoritos</a>
+    </div>
+    <div class="mobile-categories">
+      <h4>Categorias</h4>
+      <a href="#" class="mobile-category-link" data-genre="28">Ação</a>
+      <a href="#" class="mobile-category-link" data-genre="12">Aventura</a>
+      <a href="#" class="mobile-category-link" data-genre="16">Animação</a>
+      <a href="#" class="mobile-category-link" data-genre="35">Comédia</a>
+      <a href="#" class="mobile-category-link" data-genre="80">Crime</a>
+      <a href="#" class="mobile-category-link" data-genre="18">Drama</a>
+      <a href="#" class="mobile-category-link" data-genre="10751">Família</a>
+      <a href="#" class="mobile-category-link" data-genre="14">Fantasia</a>
+      <a href="#" class="mobile-category-link" data-genre="27">Terror</a>
+      <a href="#" class="mobile-category-link" data-genre="878">Ficção Científica</a>
+    </div>
+  `;
+  document.body.appendChild(mobileMenu);
+
+  hamburgerMenu.addEventListener('click', () => {
+    mobileMenu.classList.add('active');
+  });
+
+  document.querySelector('.close-mobile-menu').addEventListener('click', () => {
+    mobileMenu.classList.remove('active');
+  });
+
+  // Event listeners para links mobile
+  document.getElementById('mobileHomeLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    loadHomePage();
+    mobileMenu.classList.remove('active');
+    document.getElementById('pagination').innerHTML = '';
+  });
+
+  document.getElementById('mobileFavoritesLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    loadFavorites();
+    mobileMenu.classList.remove('active');
+    document.getElementById('pagination').innerHTML = '';
+  });
+
+  // Event listeners para categorias mobile
+  document.querySelectorAll('.mobile-category-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const genreId = link.getAttribute('data-genre');
+      loadMoviesByGenre(genreId, link.textContent);
+      mobileMenu.classList.remove('active');
+    });
+  });
+}
+
+
+// Carregar filmes por categoria
+function loadMoviesByGenre(genreId, genreName, page = 1) {
+  elements.content.innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+    </div>
+  `;
+
+  fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&language=pt-BR&with_genres=${genreId}&page=${page}`)
+    .then(response => response.json())
+    .then(data => {
+      renderMovieGrid(data.results, `Filmes de ${genreName}`);
+      renderPagination(data.total_pages, page, (newPage) => {
+        loadMoviesByGenre(genreId, genreName, newPage);
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching movies by genre:', error);
+      showError('Ocorreu um erro ao carregar os filmes desta categoria');
+    });
+}
+
 // Utilitários
 function showToast(message) {
   const toast = document.createElement('div');
@@ -422,104 +528,62 @@ window.showMovieDetail = showMovieDetail;
 window.toggleFavorite = toggleFavorite;
 window.showAuthModal = showAuthModal;
 window.logout = logout;
+window.loadMoviesByGenre = loadMoviesByGenre;
 
-// Adicione no início do arquivo, após a constante TMDB_API_KEY
-const categories = {
-    popular: { name: "Populares", url: "movie/popular" },
-    top_rated: { name: "Melhores Avaliados", url: "movie/top_rated" },
-    upcoming: { name: "Em Breve", url: "movie/upcoming" },
-    now_playing: { name: "Nos Cinemas", url: "movie/now_playing" }
-  };
-  
-  // Substitua a função loadHomePage por esta versão atualizada
-  function loadHomePage() {
-    elements.content.innerHTML = `
-      <div class="loading">
-        <div class="spinner"></div>
-      </div>
-    `;
-    
-    // Busca filmes populares primeiro
-    fetchMoviesByCategory('popular')
-      .then(movies => {
-        renderHomePage(movies);
-      })
-      .catch(error => {
-        console.error('Error loading movies:', error);
-        showError('Ocorreu um erro ao carregar os filmes');
-      });
+// ... (código anterior permanece igual até a função loadMoviesByGenre)
+
+
+
+// Renderizar paginação
+function renderPagination(totalPages, currentPage, callback) {
+  const paginationContainer = document.getElementById('pagination');
+  paginationContainer.innerHTML = '';
+
+  if (totalPages <= 1) return;
+
+  const pagination = document.createElement('ul');
+  pagination.className = 'pagination';
+
+  // Botão Anterior
+  const prevItem = document.createElement('li');
+  prevItem.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+  prevItem.innerHTML = `<a class="page-link" href="#">&laquo;</a>`;
+  prevItem.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (currentPage > 1) callback(currentPage - 1);
+  });
+  pagination.appendChild(prevItem);
+
+  // Números das páginas
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
   }
-  
-  // Nova função para buscar por categoria
-  async function fetchMoviesByCategory(category) {
-    try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/${categories[category].url}?api_key=${TMDB_API_KEY}&language=pt-BR`
-      );
-      const data = await response.json();
-      return data.results;
-    } catch (error) {
-      console.error(`Error fetching ${category} movies:`, error);
-      throw error;
-    }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const pageItem = document.createElement('li');
+    pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+    pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+    pageItem.addEventListener('click', (e) => {
+      e.preventDefault();
+      callback(i);
+    });
+    pagination.appendChild(pageItem);
   }
-  
-  // Nova função para renderizar a página inicial com várias categorias
-  async function renderHomePage(popularMovies) {
-    // Busca as outras categorias em paralelo
-    const [topRated, upcoming, nowPlaying] = await Promise.all([
-      fetchMoviesByCategory('top_rated'),
-      fetchMoviesByCategory('upcoming'),
-      fetchMoviesByCategory('now_playing')
-    ]);
-  
-    elements.content.innerHTML = `
-      <section class="category-section">
-        <h2 class="section-title">Filmes Populares</h2>
-        <div class="movie-grid" id="popularMovies"></div>
-        <a href="#" class="see-more" onclick="showCategory('popular')">Ver mais</a>
-      </section>
-      
-      <section class="category-section">
-        <h2 class="section-title">Melhores Avaliados</h2>
-        <div class="movie-grid" id="topRatedMovies"></div>
-        <a href="#" class="see-more" onclick="showCategory('top_rated')">Ver mais</a>
-      </section>
-      
-      <section class="category-section">
-        <h2 class="section-title">Em Breve</h2>
-        <div class="movie-grid" id="upcomingMovies"></div>
-        <a href="#" class="see-more" onclick="showCategory('upcoming')">Ver mais</a>
-      </section>
-      
-      <section class="category-section">
-        <h2 class="section-title">Nos Cinemas</h2>
-        <div class="movie-grid" id="nowPlayingMovies"></div>
-        <a href="#" class="see-more" onclick="showCategory('now_playing')">Ver mais</a>
-      </section>
-    `;
-  
-    // Renderiza cada categoria
-    renderMovieGrid(popularMovies.slice(0, 5), '', 'popularMovies');
-    renderMovieGrid(topRated.slice(0, 5), '', 'topRatedMovies');
-    renderMovieGrid(upcoming.slice(0, 5), '', 'upcomingMovies');
-    renderMovieGrid(nowPlaying.slice(0, 5), '', 'nowPlayingMovies');
-  }
-  
-  // Nova função para mostrar uma categoria completa
-  function showCategory(category) {
-    elements.content.innerHTML = `
-      <div class="loading">
-        <div class="spinner"></div>
-      </div>
-    `;
-    
-    fetchMoviesByCategory(category)
-      .then(movies => {
-        renderMovieGrid(movies, categories[category].name);
-      })
-      .catch(error => {
-        console.error(`Error loading ${category} movies:`, error);
-        showError(`Ocorreu um erro ao carregar os filmes ${categories[category].name.toLowerCase()}`);
-      });
-  }
+
+  // Botão Próximo
+  const nextItem = document.createElement('li');
+  nextItem.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+  nextItem.innerHTML = `<a class="page-link" href="#">&raquo;</a>`;
+  nextItem.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (currentPage < totalPages) callback(currentPage + 1);
+  });
+  pagination.appendChild(nextItem);
+
+  paginationContainer.appendChild(pagination);
+}
+

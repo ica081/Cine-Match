@@ -11,25 +11,47 @@
   <div class="app-container">
     <!-- Header -->
     <header>
+      <button class="hamburger-menu">
+        <i class="fas fa-bars"></i>
+      </button>
       <div class="header-content">
         <a href="#" class="logo" id="homeLink">
           <i class="fas fa-film"></i>
-          <span>CineMatch</span>
+          <span class="logo-text">CineMatch</span>
         </a>
-        <!-- Modifique a parte do nav-links no header -->
+        
+        <div class="search-container">
+          <button class="search-toggle" id="searchToggle">
+            <i class="fas fa-search"></i>
+          </button>
+          <div class="search-input-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Buscar filmes..." id="headerSearchInput">
+          </div>
+        </div>
+        
         <div class="nav-links">
-            <a href="#" class="nav-link" id="homeLink">Início</a>
-            <div class="dropdown">
-            <button class="nav-link dropdown-btn">Categorias <i class="fas fa-chevron-down"></i></button>
-            <div class="dropdown-content">
-                <a href="#" onclick="showCategory('popular'); return false;">Populares</a>
-                <a href="#" onclick="showCategory('top_rated'); return false;">Melhores Avaliados</a>
-                <a href="#" onclick="showCategory('upcoming'); return false;">Em Breve</a>
-                <a href="#" onclick="showCategory('now_playing'); return false;">Nos Cinemas</a>
+          <a href="#" class="nav-link" id="favoritesLink">Favoritos</a>
+        </div>
+        <div class="categories-container">
+          <div class="categories-dropdown">
+            <button class="categories-btn">
+              <i class="fas fa-tags"></i> Categorias
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="categories-menu">
+              <a href="#" class="category-link" data-genre="28">Ação</a>
+              <a href="#" class="category-link" data-genre="12">Aventura</a>
+              <a href="#" class="category-link" data-genre="16">Animação</a>
+              <a href="#" class="category-link" data-genre="35">Comédia</a>
+              <a href="#" class="category-link" data-genre="80">Crime</a>
+              <a href="#" class="category-link" data-genre="18">Drama</a>
+              <a href="#" class="category-link" data-genre="10751">Família</a>
+              <a href="#" class="category-link" data-genre="14">Fantasia</a>
+              <a href="#" class="category-link" data-genre="27">Terror</a>
+              <a href="#" class="category-link" data-genre="878">Ficção Científica</a>
             </div>
-            </div>
-            <a href="#" class="nav-link" id="searchLink">Buscar</a>
-            <a href="#" class="nav-link" id="favoritesLink">Favoritos</a>
+          </div>
         </div>
         <div class="auth-buttons">
           <button id="darkModeToggle" class="btn-icon" aria-label="Alternar modo escuro">
@@ -47,6 +69,7 @@
           <div class="spinner"></div>
         </div>
       </div>
+      <div id="pagination" class="pagination-container"></div>
     </main>
 
     <!-- Footer -->
