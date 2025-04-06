@@ -27,7 +27,6 @@ const elements = {
 // Inicialização
 document.addEventListener('DOMContentLoaded', init);
 
-// Atualizar a função init para incluir a paginação nas categorias desktop
 function init() {
   setupDarkMode();
   setupEventListeners();
@@ -119,7 +118,7 @@ function checkAuthState() {
 function renderAuthSection() {
   if (currentUser) {
     elements.authSection.innerHTML = `
-      <span class="mr-2">${currentUser.email}</span>
+      <span class="mr-2">${currentUser.username || currentUser.email}</span>
       <button onclick="logout()" class="btn btn-outline">
         Sair
       </button>
@@ -144,12 +143,16 @@ function hideModal() {
 
 function toggleAuthForm() {
   isLoginForm = !isLoginForm;
+  const nameField = document.getElementById('nameField');
+  
   if (isLoginForm) {
+    nameField.style.display = 'none';
     elements.modalTitle.textContent = 'Entrar';
     elements.submitAuthBtn.textContent = 'Entrar';
     elements.toggleFormText.textContent = 'Não tem uma conta? ';
     elements.toggleFormBtn.textContent = 'Registre-se';
   } else {
+    nameField.style.display = 'block';
     elements.modalTitle.textContent = 'Registrar';
     elements.submitAuthBtn.textContent = 'Registrar';
     elements.toggleFormText.textContent = 'Já tem uma conta? ';
@@ -161,15 +164,56 @@ function handleAuth(e) {
   e.preventDefault();
   const email = document.getElementById('authEmail').value;
   const password = document.getElementById('authPassword').value;
-
-  // Simulação de autenticação
-  currentUser = { email, uid: `user-${Date.now()}` };
-  localStorage.setItem('user', JSON.stringify(currentUser));
   
-  renderAuthSection();
-  hideModal();
-  loadHomePage();
-  showToast(`Bem-vindo, ${email}!`);
+  if (!email || !password) {
+    showToast('Por favor, preencha todos os campos');
+    return;
+  }
+  
+  if (!isLoginForm) {
+    const username = document.getElementById('authName').value;
+    if (!username) {
+      showToast('Por favor, insira um nome de usuário');
+      return;
+    }
+    
+    // Verificar se o usuário já existe
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const userExists = users.some(user => user.email === email);
+    
+    if (userExists) {
+      showToast('Este email já está em uso');
+      return;
+    }
+    
+    // Criar novo usuário
+    currentUser = { email, username, uid: `user-${Date.now()}` };
+    users.push(currentUser);
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('user', JSON.stringify(currentUser));
+    
+    renderAuthSection();
+    hideModal();
+    loadHomePage();
+    showToast(`Bem-vindo, ${username}!`);
+  } else {
+    // Verificar login
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const user = users.find(user => user.email === email);
+    
+    if (!user) {
+      showToast('Email ou senha incorretos');
+      return;
+    }
+    
+    currentUser = user;
+    localStorage.setItem('user', JSON.stringify(currentUser));
+    
+    renderAuthSection();
+    hideModal();
+    loadHomePage();
+    showToast(`Bem-vindo de volta, ${user.username || user.email}!`);
+  }
   
   // Limpar formulário
   elements.authForm.reset();
@@ -367,11 +411,9 @@ function toggleFavorite(movieId) {
   }
 
   if (isFavorite(movieId)) {
-    // Remover dos favoritos
     favorites = favorites.filter(movie => movie.id !== movieId);
     showToast('Filme removido dos favoritos!');
   } else {
-    // Adicionar aos favoritos - precisamos buscar os detalhes do filme
     fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=pt-BR`)
       .then(res => res.json())
       .then(movie => {
@@ -380,21 +422,16 @@ function toggleFavorite(movieId) {
       });
   }
 
-  // Atualizar localStorage
   localStorage.setItem('favorites', JSON.stringify(favorites));
-  
-  // Atualizar UI
   updateFavoriteButtons(movieId, isFavorite(movieId));
 }
 
 function updateFavoriteButtons(movieId, isFavorite) {
-  // Atualiza botões na grade
   document.querySelectorAll(`.favorite-btn[onclick*="${movieId}"]`).forEach(btn => {
     btn.classList.toggle('active', isFavorite);
     btn.querySelector('i').className = isFavorite ? 'fas fa-heart' : 'far fa-heart';
   });
   
-  // Atualiza botão na página de detalhes
   const detailBtn = document.querySelector('.movie-detail-info .btn-primary');
   if (detailBtn) {
     detailBtn.innerHTML = `
@@ -404,7 +441,6 @@ function updateFavoriteButtons(movieId, isFavorite) {
   }
 }
 
-// Atualizar a função setupMobileMenu para incluir a paginação
 function setupMobileMenu() {
   const hamburgerMenu = document.querySelector('.hamburger-menu');
   const mobileMenu = document.createElement('div');
@@ -444,7 +480,6 @@ function setupMobileMenu() {
     mobileMenu.classList.remove('active');
   });
 
-  // Event listeners para links mobile
   document.getElementById('mobileHomeLink').addEventListener('click', (e) => {
     e.preventDefault();
     loadHomePage();
@@ -459,7 +494,6 @@ function setupMobileMenu() {
     document.getElementById('pagination').innerHTML = '';
   });
 
-  // Event listeners para categorias mobile
   document.querySelectorAll('.mobile-category-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -470,8 +504,6 @@ function setupMobileMenu() {
   });
 }
 
-
-// Carregar filmes por categoria
 function loadMoviesByGenre(genreId, genreName, page = 1) {
   elements.content.innerHTML = `
     <div class="loading">
@@ -523,18 +555,6 @@ function showError(message) {
   `;
 }
 
-// Expor funções globais
-window.showMovieDetail = showMovieDetail;
-window.toggleFavorite = toggleFavorite;
-window.showAuthModal = showAuthModal;
-window.logout = logout;
-window.loadMoviesByGenre = loadMoviesByGenre;
-
-// ... (código anterior permanece igual até a função loadMoviesByGenre)
-
-
-
-// Renderizar paginação
 function renderPagination(totalPages, currentPage, callback) {
   const paginationContainer = document.getElementById('pagination');
   paginationContainer.innerHTML = '';
@@ -587,3 +607,9 @@ function renderPagination(totalPages, currentPage, callback) {
   paginationContainer.appendChild(pagination);
 }
 
+// Expor funções globais
+window.showMovieDetail = showMovieDetail;
+window.toggleFavorite = toggleFavorite;
+window.showAuthModal = showAuthModal;
+window.logout = logout;
+window.loadMoviesByGenre = loadMoviesByGenre;

@@ -87,29 +87,33 @@
   </div>
 
   <!-- Auth Modal -->
-  <div id="authModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title" id="modalTitle">Entrar</h3>
-        <button class="close-modal" id="closeModal">&times;</button>
-      </div>
-      <form id="authForm">
-        <div class="form-group">
-          <label for="authEmail" class="form-label">Email</label>
-          <input type="email" id="authEmail" class="form-input" required>
-        </div>
-        <div class="form-group">
-          <label for="authPassword" class="form-label">Senha</label>
-          <input type="password" id="authPassword" class="form-input" required>
-        </div>
-        <button type="submit" class="submit-btn" id="submitAuthBtn">Entrar</button>
-        <div class="form-footer">
-          <span id="toggleFormText">Não tem uma conta? </span>
-          <span class="toggle-form" id="toggleFormBtn">Registre-se</span>
-        </div>
-      </form>
+<div id="authModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Entrar</h3>
+      <button class="close-modal" id="closeModal">&times;</button>
     </div>
+    <form id="authForm">
+      <div id="nameField" class="form-group" style="display: none;">
+        <label for="authName" class="form-label">Nome de Usuário</label>
+        <input type="text" id="authName" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="authEmail" class="form-label">Email</label>
+        <input type="email" id="authEmail" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label for="authPassword" class="form-label">Senha</label>
+        <input type="password" id="authPassword" class="form-input" required>
+      </div>
+      <button type="submit" class="submit-btn" id="submitAuthBtn">Entrar</button>
+      <div class="form-footer">
+        <span id="toggleFormText">Não tem uma conta? </span>
+        <span class="toggle-form" id="toggleFormBtn">Registre-se</span>
+      </div>
+    </form>
   </div>
+</div>
 
   <script src="app.js"></script>
 </body>
